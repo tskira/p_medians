@@ -10,11 +10,20 @@ def population_size(n, p):
 
 def init_population(n, p):
     k = population_size(n,p)//math.ceil(n/p)
+    new_chromosome = set()
     for i in range(population_size(n, p)// info[1]):
-        print(i)
+        for j in range(info[1]):
+            new_chromosome.add((i * info[1] + j) % info[0])
+        population.add(tuple(new_chromosome))
+        new_chromosome.clear()
+    for i in range(population_size(n,p)//info[1]):
+        for j in range(10):
+            print("")
+    print(population)        
+        
 
 points = {}
-population = set()
+population = tuple()  
 info = (tuple(map(int, input().split())))
 print(info)
 count = 0
