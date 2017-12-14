@@ -1,4 +1,5 @@
 import math
+import random
 
 def number_combinations(n, p):
     f = math.factorial
@@ -11,19 +12,35 @@ def population_size(n, p):
 def init_population(n, p):
     k = population_size(n,p)//math.ceil(n/p)
     new_chromosome = set()
-    for i in range(population_size(n, p)// info[1]):
-        for j in range(info[1]):
-            new_chromosome.add((i * info[1] + j) % info[0])
+    print(population_size(n,p))
+    print(k)
+    for i in range(n//p):
+        for j in range(p):
+            new_chromosome.add((i * p + j) % n)
         population.add(tuple(new_chromosome))
         new_chromosome.clear()
-    for i in range(population_size(n,p)//info[1]):
-        for j in range(10):
-            print("")
-    print(population)        
+    count = 0
+    for i in range(n//p):
+        for j in range(p):
+            new_chromosome.add((count % n))
+            count += k
+            if (count >= n):
+                count = (count % n) + 1
+        population.add(tuple(new_chromosome))
+        new_chromosome.clear()
+    while(len(population) < population_size(n,p)):
+        fill_chromossome = set()
+        while(len(fill_chromossome) < p):
+            fill_chromossome.add(random.randint(0, n - 1))
+        population.add(tuple(fill_chromossome))
+        fill_chromossome.clear()
+
+    print(population)       
+    print(len(population))
         
 
 points = {}
-population = tuple()  
+population = set()  
 info = (tuple(map(int, input().split())))
 print(info)
 count = 0
