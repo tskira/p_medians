@@ -1,5 +1,6 @@
 import math
 import random
+import bisect
 
 def number_combinations(n, p):
     f = math.factorial
@@ -9,11 +10,12 @@ def population_size(n, p):
     d = math.ceil(n/p)
     return ((max (2, math.ceil((n/100)*((math.log(number_combinations(n,p)))/d))))*d)
 
+def euclidean_distance(x0,x1,y0,y1):
+    return(math.sqrt(((x0 - x1)*(x0 - x1)) + ((y0 - y1)*(y0 - y1))))
+
 def init_population(n, p):
     k = population_size(n,p)//math.ceil(n/p)
     new_chromosome = set()
-    print(population_size(n,p))
-    print(k)
     for i in range(n//p):
         for j in range(p):
             new_chromosome.add((i * p + j) % n)
@@ -35,16 +37,30 @@ def init_population(n, p):
         population.add(tuple(fill_chromossome))
         fill_chromossome.clear()
 
-    print(population)       
-    print(len(population))
-        
 
-points = {}
+
 population = set()  
 info = (tuple(map(int, input().split())))
-print(info)
+points = [0 for x in range(info[0])]
+priority_nodes = [list() for x in range(info[0])]
 count = 0
-for i in range(info[0]):
-    points.update({i : (tuple(map(int, input().split())))})
+nodes_distances = [[0 for x in range(info[0])] for y in range(info[0])] 
+assigment_urgencies = list()
 
+for i in range(info[0]):
+    points[i] = (list(map(int, input().split())))
+
+for i in range(info[0]):
+    for j in range(info[0]):
+        if(i != j):
+            nodes_distances[i][j] = euclidean_distance((points[i][0]),(points[j][0]),(points[i][1]),(points[j][1]))
+            bisect.insort(priority_nodes[i], list((nodes_distances[i][j], j)))
+
+for i in range(info[0]):
+    bisect.insort(assigment_urgencies, list((priority_nodes[i][1][0] - priority_nodes[i][0][0], priority_nodes[i][1][1])))
+    print('[{}] - [{}]' .format(priority_nodes[i][1], priority_nodes[i][0]))
+
+'''for i in range(11):
+    print('[{}] : {}' .format(i, assigment_urgencies[i]))
+'''
 init_population(info[0], info[1])
