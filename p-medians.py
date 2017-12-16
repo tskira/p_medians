@@ -58,9 +58,7 @@ for i in range(info[0]):
 
 for i in range(info[0]):
     bisect.insort(assigment_urgencies, list((priority_nodes[i][1][0] - priority_nodes[i][0][0], priority_nodes[i][1][1])))
-    print('[{}] - [{}]' .format(priority_nodes[i][1], priority_nodes[i][0]))
 
-'''for i in range(11):
-    print('[{}] : {}' .format(i, assigment_urgencies[i]))
-'''
+
+
 init_population(info[0], info[1])
