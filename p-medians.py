@@ -39,9 +39,9 @@ def init_population(n, p):
 
 def generate_assigment_points(size_apl, medians, distance_from_medians, assigment_priority_list):
      for i in size_apl:
-        for j in medians:
+        for j in medians: 
             bisect.insort(distance_from_medians[i], list((nodes_distances[i][j], j)))
-        bisect.insort(assigment_priority_list, list((distance_from_medians[i][1][0] - distance_from_medians[i][0][0], i, distance_from_medians[i][1][1])))
+        bisect.insort(assigment_priority_list, list((distance_from_medians[i][1][0] - distance_from_medians[i][0][0], i, distance_from_medians[i][1][1], distance_from_medians[i][0][1])))
  
 def assignment(target_medians):
     medians = list(target_medians).copy()
@@ -55,13 +55,18 @@ def assignment(target_medians):
     for i in medians:
         size_apl.remove(i)
 
-    generate_assigment_points(size_apl, medians, distance_from_medians, assigment_priority_list)    
+    generate_assigment_points(size_apl, medians, distance_from_medians, assigment_priority_list)  
 
+    for i in range(info[0]):
+        print('[{}] : {} ' .format(i, distance_from_medians[i]))
+    
+    print(assigment_priority_list)
+    '''
     while(size_apl):
-        for i in assigment_priority_list:
-            if (medians_capacity[i[2]] - points[i[1]][3] >= 0):
-                medians_capacity[i[2]] -= points[i[1]][3]
-                points_assignment[i[1]] = i[2]
+        for i in reversed(assigment_priority_list):
+            if (medians_capacity[i[3]] - points[i[1]][3] >= 0):
+                medians_capacity[i[3]] -= points[i[1]][3]
+                points_assignment[i[1]] = i[3]
                 print(size_apl)
                 print(i[1])
                 print(medians)
@@ -71,8 +76,8 @@ def assignment(target_medians):
             medians.remove(i[2])
 
         assigment_priority_list.clear()
-        generate_assigment_points(size_apl, medians, distance_from_medians, assigment_priority_list)    
-    print(points_assignment)
+        generate_assigment_points(size_apl, medians, distance_from_medians, assigment_priority_list)   
+    ''' 
 
 population = set()  
 info = (tuple(map(int, input().split())))
