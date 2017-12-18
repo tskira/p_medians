@@ -37,15 +37,47 @@ def init_population(n, p):
         population.add(tuple(fill_chromossome))
         fill_chromossome.clear()
 
+def generate_assigment_points(size_apl, medians, distance_from_medians, assigment_priority_list):
+     for i in size_apl:
+        for j in medians:
+            bisect.insort(distance_from_medians[i], list((nodes_distances[i][j], j)))
+        bisect.insort(assigment_priority_list, list((distance_from_medians[i][1][0] - distance_from_medians[i][0][0], i, distance_from_medians[i][1][1])))
+ 
+def assignment(target_medians):
+    medians = list(target_medians).copy()
+    size_apl = [i for i in range(info[0])]
+    distance_from_medians = [list() for x in range(info[0])]
+    assigment_priority_list = list()
+    points_assignment = [-1 for i in range(info[0])]
+    medians_capacity = [(points[i][2] - points[i][3]) for i in range(info[0])]
+    print(target_medians)
 
+    for i in medians:
+        size_apl.remove(i)
+
+    generate_assigment_points(size_apl, medians, distance_from_medians, assigment_priority_list)    
+
+    while(size_apl):
+        for i in assigment_priority_list:
+            if (medians_capacity[i[2]] - points[i[1]][3] >= 0):
+                medians_capacity[i[2]] -= points[i[1]][3]
+                points_assignment[i[1]] = i[2]
+                print(size_apl)
+                print(i[1])
+                print(medians)
+                size_apl.remove(i[1])
+
+        if(medians_capacity[i[2]] == 0):
+            medians.remove(i[2])
+
+        assigment_priority_list.clear()
+        generate_assigment_points(size_apl, medians, distance_from_medians, assigment_priority_list)    
+    print(points_assignment)
 
 population = set()  
 info = (tuple(map(int, input().split())))
-points = [0 for x in range(info[0])]
-priority_nodes = [list() for x in range(info[0])]
-count = 0
 nodes_distances = [[0 for x in range(info[0])] for y in range(info[0])] 
-assigment_urgencies = list()
+points = [0 for x in range(info[0])]
 
 for i in range(info[0]):
     points[i] = (list(map(int, input().split())))
@@ -54,11 +86,6 @@ for i in range(info[0]):
     for j in range(info[0]):
         if(i != j):
             nodes_distances[i][j] = euclidean_distance((points[i][0]),(points[j][0]),(points[i][1]),(points[j][1]))
-            bisect.insort(priority_nodes[i], list((nodes_distances[i][j], j)))
-
-for i in range(info[0]):
-    bisect.insort(assigment_urgencies, list((priority_nodes[i][1][0] - priority_nodes[i][0][0], priority_nodes[i][1][1])))
-
-
 
 init_population(info[0], info[1])
+assignment(list(population)[0])
