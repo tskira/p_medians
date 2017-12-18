@@ -94,9 +94,8 @@ def chromosome_evaluation(resp):
             evaluation += nodes_distances[i][resp[i]]
     return evaluation
 
-def selection(target_population):
-    w = [(1/population_evaluation[i]) for i in range(p_size)]
-    
+def selection(population):
+    return 0
 
 
 population = set()  
@@ -119,8 +118,4 @@ init_population(info[0], info[1])
 
 for i in range(len(population)):
     population_evaluation[i] = chromosome_evaluation(assignment(list(population)[i]))
-
-a = [1 ,2, 3, 4]
-print(a)
-print(random.choices(a, weights=[10,20,30,40], k=4))
-selection(population)
+print(min(population_evaluation))
