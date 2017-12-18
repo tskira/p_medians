@@ -37,47 +37,62 @@ def init_population(n, p):
         population.add(tuple(fill_chromossome))
         fill_chromossome.clear()
 
-def generate_assigment_points(size_apl, medians, distance_from_medians, assigment_priority_list):
-     for i in size_apl:
+def generate_assigment_points(size_apl, medians, distance_from_medians, assigment_priority_list, capacity_medians):
+    distance_from_medians = [list() for i in range(info[0])]
+
+    for i in size_apl:
         for j in medians: 
-            bisect.insort(distance_from_medians[i], list((nodes_distances[i][j], j)))
-        bisect.insort(assigment_priority_list, list((distance_from_medians[i][1][0] - distance_from_medians[i][0][0], i, distance_from_medians[i][1][1], distance_from_medians[i][0][1])))
- 
+            if(capacity_medians[j] - points[i][3] >= 0):
+                bisect.insort(distance_from_medians[i], list((nodes_distances[i][j], j)))
+    
+        first_median = -1
+        second_median = -1
+        count = 0
+        while ((first_median == -1 or second_median == -1) and count <= len(medians)):
+            if (first_median == -1):
+                if(capacity_medians[distance_from_medians[i][count][1]] - points[i][3] >= 0):
+                    first_median = count
+                    count += 1
+            if(first_median != -1 and second_median == -1):
+                if(capacity_medians[distance_from_medians[i][count][1]] - points[i][3] >= 0):
+                    second_median = count
+            count += 1
+        bisect.insort(assigment_priority_list, list((distance_from_medians[i][second_median][0] - distance_from_medians[i][first_median][0], i, distance_from_medians[i][second_median][1], distance_from_medians[i][first_median][1])))
+    
+
 def assignment(target_medians):
     medians = list(target_medians).copy()
     size_apl = [i for i in range(info[0])]
-    distance_from_medians = [list() for x in range(info[0])]
-    assigment_priority_list = list()
     points_assignment = [-1 for i in range(info[0])]
-    medians_capacity = [(points[i][2] - points[i][3]) for i in range(info[0])]
-    print(target_medians)
+    capacity_medians = [(points[i][2] - points[i][3]) for i in range(info[0])]
+    distance_from_medians = [list() for i in range(info[0])]
+    assignment_priority_list = list()
 
     for i in medians:
         size_apl.remove(i)
-
-    generate_assigment_points(size_apl, medians, distance_from_medians, assigment_priority_list)  
-
-    for i in range(info[0]):
-        print('[{}] : {} ' .format(i, distance_from_medians[i]))
+        
+    generate_assigment_points(size_apl, medians, distance_from_medians, assignment_priority_list, capacity_medians)
     
-    print(assigment_priority_list)
-    '''
     while(size_apl):
-        for i in reversed(assigment_priority_list):
-            if (medians_capacity[i[3]] - points[i[1]][3] >= 0):
-                medians_capacity[i[3]] -= points[i[1]][3]
+        for i in reversed(assignment_priority_list):
+            if (capacity_medians[i[3]] - points[i[1]][3] >= 0):
+                capacity_medians[i[3]] -= points[i[1]][3]
+                if(capacity_medians[i[3]] == 0):
+                    medians.remove(i[3])
                 points_assignment[i[1]] = i[3]
-                print(size_apl)
-                print(i[1])
-                print(medians)
                 size_apl.remove(i[1])
 
-        if(medians_capacity[i[2]] == 0):
-            medians.remove(i[2])
+        assignment_priority_list.clear()
+        generate_assigment_points(size_apl, medians, distance_from_medians, assignment_priority_list, capacity_medians)
+    
+    return points_assignment
 
-        assigment_priority_list.clear()
-        generate_assigment_points(size_apl, medians, distance_from_medians, assigment_priority_list)   
-    ''' 
+def chromosome_evaluation(resp):
+    evaluation = 0
+    for i in range(info[0]):
+        if (resp[i] != -1):
+            evaluation += nodes_distances[i][resp[i]]
+    return evaluation
 
 population = set()  
 info = (tuple(map(int, input().split())))
@@ -93,4 +108,7 @@ for i in range(info[0]):
             nodes_distances[i][j] = euclidean_distance((points[i][0]),(points[j][0]),(points[i][1]),(points[j][1]))
 
 init_population(info[0], info[1])
-assignment(list(population)[0])
+
+a = assignment(list(population)[random.randint(0, 40)])
+print(a)
+print(chromosome_evaluation(a))
