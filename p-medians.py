@@ -94,10 +94,18 @@ def chromosome_evaluation(resp):
             evaluation += nodes_distances[i][resp[i]]
     return evaluation
 
+def selection(target_population):
+    w = [(1/population_evaluation[i]) for i in range(p_size)]
+    
+
+
 population = set()  
 info = (tuple(map(int, input().split())))
 nodes_distances = [[0 for x in range(info[0])] for y in range(info[0])] 
 points = [0 for x in range(info[0])]
+p_size = population_size(info[0], info[1])
+population_evaluation = [0 for i in range(p_size)]
+tournament_size = int(p_size * 0.1)
 
 for i in range(info[0]):
     points[i] = (list(map(int, input().split())))
@@ -109,6 +117,10 @@ for i in range(info[0]):
 
 init_population(info[0], info[1])
 
-a = assignment(list(population)[random.randint(0, 40)])
+for i in range(len(population)):
+    population_evaluation[i] = chromosome_evaluation(assignment(list(population)[i]))
+
+a = [1 ,2, 3, 4]
 print(a)
-print(chromosome_evaluation(a))
+print(random.choices(a, weights=[10,20,30,40], k=4))
+selection(population)
