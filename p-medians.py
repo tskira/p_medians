@@ -44,21 +44,25 @@ def generate_assigment_points(size_apl, medians, distance_from_medians, assigmen
         for j in medians: 
             if(capacity_medians[j] - points[i][3] >= 0):
                 bisect.insort(distance_from_medians[i], list((nodes_distances[i][j], j)))
-    
+
         first_median = -1
         second_median = -1
-        count = 0
-        while ((first_median == -1 or second_median == -1) and count <= len(medians)):
-            if (first_median == -1):
+        count = -1
+
+        while((first_median == -1 or second_median == -1) and count < len(distance_from_medians[i])):            
+            count += 1
+            if (first_median == -1 and count < len(distance_from_medians[i])):
                 if(capacity_medians[distance_from_medians[i][count][1]] - points[i][3] >= 0):
                     first_median = count
                     count += 1
-            if(first_median != -1 and second_median == -1):
+                    
+            if(first_median != -1 and second_median == -1 and count < len(distance_from_medians[i])):
                 if(capacity_medians[distance_from_medians[i][count][1]] - points[i][3] >= 0):
                     second_median = count
-            count += 1
-        bisect.insort(assigment_priority_list, list((distance_from_medians[i][second_median][0] - distance_from_medians[i][first_median][0], i, distance_from_medians[i][second_median][1], distance_from_medians[i][first_median][1])))
-    
+        if(second_median == -1 or first_median == -1):
+            return -1
+        else:
+            bisect.insort(assigment_priority_list, list((distance_from_medians[i][second_median][0] - distance_from_medians[i][first_median][0], i, distance_from_medians[i][second_median][1], distance_from_medians[i][first_median][1])))
 
 def assignment(target_medians):
     medians = list(target_medians).copy()
@@ -83,8 +87,10 @@ def assignment(target_medians):
                 size_apl.remove(i[1])
 
         assignment_priority_list.clear()
-        generate_assigment_points(size_apl, medians, distance_from_medians, assignment_priority_list, capacity_medians)
-    
+        a = generate_assigment_points(size_apl, medians, distance_from_medians, assignment_priority_list, capacity_medians)
+        if (a == -1):
+            b = [0 for i in range(info[0])]
+            return(b)
     return points_assignment
 
 def chromosome_evaluation(resp):
@@ -95,9 +101,24 @@ def chromosome_evaluation(resp):
     return evaluation
 
 def selection(population):
-    return 0
+    target_population = list(population).copy()
+    w = list()
+    selected_parents = list()
+    tournament = list()
+    while(len(selected_parents) <= p_size // 4):
+        w = [0 for x in range(len(target_population))]
+        for i in range(len(population)):        
+            w[i] = (1 / chromosome_evaluation(assignment(target_population[i])))
+        ranking = random.choices(target_population, weights = w, k = p_size // 10)
+        for i in range(len(ranking)):
+            bisect.insort(tournament, list((chromosome_evaluation(assignment(ranking[i])), ranking[i])))
+        selected_parents.append(tournament[0][1])
+        tournament.clear()
+        w.clear()
+    
+    return(selected_parents)
 
-
+            
 population = set()  
 info = (tuple(map(int, input().split())))
 nodes_distances = [[0 for x in range(info[0])] for y in range(info[0])] 
@@ -116,6 +137,8 @@ for i in range(info[0]):
 
 init_population(info[0], info[1])
 
+assignment(list(population)[0])
+
 for i in range(len(population)):
     population_evaluation[i] = chromosome_evaluation(assignment(list(population)[i]))
-print(min(population_evaluation))
+selection(population)
