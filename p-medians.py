@@ -105,24 +105,25 @@ def selection(population):
     w = list()
     selected_parents = list()
     tournament = list()
-    while(len(selected_parents) <= int(0.9 * p_size)):
+    while(len(selected_parents) < int(0.9 * p_size)):
         w = [0 for x in range(len(target_population))]
         for i in range(len(target_population)):        
             w[i] = (1 / chromosome_evaluation(assignment(target_population[i])))
-        ranking = random.choices(target_population, weights = w, k = 3)
+        ranking = random.choices(target_population, weights = w, k = 2)
         for i in range(len(ranking)):
             bisect.insort(tournament, list((chromosome_evaluation(assignment(ranking[i])), ranking[i])))
+        #print(tournament)
         if(tournament[0][1] not in selected_parents):
             selected_parents.append(tournament[0][1])
             target_population.remove(tournament[0][1])
         tournament.clear()
         w.clear()
-
+ 
     return(selected_parents)
 
 def crossover(next_population):
     next_generation = list()
-    while(len(next_generation) <= p_size):
+    while(len(next_generation) + len(next_population) < p_size):
         parents = random.choices(next_population, k = 2)
         set_parent1 = set(parents[0])
         set_parent2 = set(parents[1])
@@ -154,12 +155,12 @@ def crossover(next_population):
         if (new_e2):
             if((new_e2 not in next_generation) and (new_e2 not in next_population)):
                 next_generation.append(tuple(new_e2))
-    ''' for i in range(len(next_generation)):
+
+    for i in range(len(next_generation)):
         next_population.append(next_generation[i])
     return(next_population)
-    '''
-    return (next_generation)
-
+    
+    #return (next_generation)
 
 def hypermutation(population):
     target_population = list(population).copy()
@@ -188,7 +189,7 @@ def cap_p_med_ga(population_target):
     while (count < 10):
         for i in range(p_size):
             population_evaluation[i] = chromosome_evaluation(assignment(list(population_generation)[i]))
-        print(population_generation)
+        #print(population_generation)
         print(min(population_evaluation))
         population_generation = selection(population_generation)
         population_generation = crossover(population_generation)
