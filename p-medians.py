@@ -118,7 +118,15 @@ def selection(population):
     
     return(selected_parents)
 
-            
+def crossover(next_generation):
+    while(len(next_generation) <= int(0.8 * p_size)):
+        parents = random.choices(next_generation, k = 2)
+        set_parent1 = set(parents[0])
+        set_parent2 = set(parents[1])
+        e1 = set_parent1.difference(set_parent2)
+        e2 = set_parent2.difference(set_parent2)
+        if(e1)
+
 population = set()  
 info = (tuple(map(int, input().split())))
 nodes_distances = [[0 for x in range(info[0])] for y in range(info[0])] 
@@ -142,3 +150,8 @@ assignment(list(population)[0])
 for i in range(len(population)):
     population_evaluation[i] = chromosome_evaluation(assignment(list(population)[i]))
 selection(population)
+
+a = [ 1,2,3,4]
+b = [3,4,5,6]
+print(set(a).difference(set(b)))
+
