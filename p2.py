@@ -15,21 +15,7 @@ def euclidean_distance(x0,x1,y0,y1):
 
 def init_population(n, p):
     k = population_size(n,p)//math.ceil(n/p)
-    new_chromosome = set()
-    for i in range(n//p):
-        for j in range(p):
-            new_chromosome.add((i * p + j) % n)
-        population.add(tuple(new_chromosome))
-        new_chromosome.clear()
-    count = 0
-    for i in range(n//p):
-        for j in range(p):
-            new_chromosome.add((count % n))
-            count += k
-            if (count >= n):
-                count = (count % n) + 1
-        population.add(tuple(new_chromosome))
-        new_chromosome.clear()
+   
     while(len(population) < population_size(n,p)):
         fill_chromossome = set()
         while(len(fill_chromossome) < p):
@@ -111,11 +97,11 @@ def selection(population):
     best_fitness = min(evaluation_next_population)
     better = evaluation_next_population.index(best_fitness)
     selected_parents.append(list(population)[better])
-    while(len(selected_parents) < int(0.4 * p_size)):
+    while(len(selected_parents) < int(0.6 * p_size)):
         w = [0 for x in range(len(target_population))]
         for i in range(len(target_population)):        
             w[i] = (1 / chromosome_evaluation(assignment(target_population[i])))
-        ranking = random.choices(target_population, weights = w, k = 3)
+        ranking = random.choices(target_population, weights = w, k = 2)
         for i in range(len(ranking)):
             bisect.insort(tournament, list((chromosome_evaluation(assignment(ranking[i])), ranking[i])))
         if(tournament[0][1] not in selected_parents):
@@ -131,6 +117,9 @@ def crossover(next_population):
     evaluation_next_population = [0 for x in range(len(next_population))]
     for i in range(len(next_population)):
         evaluation_next_population[i] = chromosome_evaluation(assignment(list(next_population)[i]))
+    best_fitness = min(evaluation_next_population)
+    better = evaluation_next_population.index(best_fitness)
+    next_population.append(list(population)[better])
     while(len(next_generation) + len(next_population) < p_size):
         parents = random.choices(next_population, k = 2)
         set_parent1 = set(parents[0])
@@ -176,7 +165,7 @@ def hypermutation(population):
     target_population = list(population).copy()
     hypermutation_members = random.choices(target_population, k = int(p_size * 0.10))
     for i in hypermutation_members:
-        best_current = list()
+        best_current = i
         best_current_evalueted = 0
         for j in range(len(i)):
             apply_mutation = list(i).copy()
