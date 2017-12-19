@@ -107,26 +107,84 @@ def selection(population):
     tournament = list()
     while(len(selected_parents) <= p_size // 4):
         w = [0 for x in range(len(target_population))]
-        for i in range(len(population)):        
+        for i in range(len(target_population)):        
             w[i] = (1 / chromosome_evaluation(assignment(target_population[i])))
         ranking = random.choices(target_population, weights = w, k = p_size // 10)
         for i in range(len(ranking)):
             bisect.insort(tournament, list((chromosome_evaluation(assignment(ranking[i])), ranking[i])))
         selected_parents.append(tournament[0][1])
+        target_population.remove(tournament[0][1])
         tournament.clear()
         w.clear()
-    
+
     return(selected_parents)
 
-def crossover(next_generation):
-    while(len(next_generation) <= int(0.8 * p_size)):
-        parents = random.choices(next_generation, k = 2)
+def crossover(next_population):
+    next_generation = list()
+    while(len(next_generation) + len(next_population) <= p_size):
+        parents = random.choices(next_population, k = 2)
         set_parent1 = set(parents[0])
         set_parent2 = set(parents[1])
+        new_e1 = set({})
+        new_e2 = set({})
         e1 = set_parent1.difference(set_parent2)
-        e2 = set_parent2.difference(set_parent2)
-        if(e1)
+        e2 = set_parent2.difference(set_parent1)
+        if(not e1):
+            if(e2 in next_population):
+                next_population.remove(set_parent2)
+        else:
+            k1 = random.randint(0, len(e1) - 1)
+            for i in range(k1):
+                new_e1.add(list(e1)[i])
+            count = 0
+            while(len(new_e1) < info[1]):
+                new_e1.add(list(set_parent2)[count])
+                count += 1
+            k2 = random.randint(0, len(e2) - 1)
+            for i in range(k2):
+                new_e2.add(list(e2)[i])
+            count = 0
+            while(len(new_e2) < info[1]):
+                new_e2.add(list(set_parent1)[count])
+                count += 1
+        if (new_e1):
+            next_generation.append(tuple(new_e1))
+        if (new_e2):
+            next_generation.append(tuple(new_e2))
+    for i in range(len(next_generation)):
+        next_population.append(next_generation[i])
+    return(next_population)
 
+def hypermutation(population):
+    target_population = list(population).copy()
+    hypermutation_members = random.choices(target_population, k = int(p_size * 0.1))
+    for i in hypermutation_members:
+        best_current = list()
+        best_current_evalueted = 0
+        for j in range(len(i)):
+            apply_mutation = list(i).copy()
+            before_mutation = chromosome_evaluation(assignment(i))
+            for k in range(info[0]):
+                if(k not in apply_mutation):
+                    apply_mutation[j] = k
+                if (chromosome_evaluation(assignment(apply_mutation)) > best_current_evalueted):
+                    best_current = apply_mutation.copy()
+                    best_current_evalueted = chromosome_evaluation(assignment(apply_mutation))
+        target_population.remove(tuple(i))
+        target_population.append(tuple(best_current))
+    return(target_population)
+
+def cap_p_med_ga():
+    init_population(info[0], info[1])
+    count = 0
+    while (count < 10):
+        for i in range(len(population)):
+            population_evaluation[i] = chromosome_evaluation(assignment(list(population)[i]))
+        print(min(population_evaluation))
+        population = selection(population)
+        population = crossover(population)
+        population = hypermutation(population)
+        
 population = set()  
 info = (tuple(map(int, input().split())))
 nodes_distances = [[0 for x in range(info[0])] for y in range(info[0])] 
@@ -143,15 +201,15 @@ for i in range(info[0]):
         if(i != j):
             nodes_distances[i][j] = euclidean_distance((points[i][0]),(points[j][0]),(points[i][1]),(points[j][1]))
 
+'''
 init_population(info[0], info[1])
 
 assignment(list(population)[0])
 
 for i in range(len(population)):
     population_evaluation[i] = chromosome_evaluation(assignment(list(population)[i]))
-selection(population)
-
-a = [ 1,2,3,4]
-b = [3,4,5,6]
-print(set(a).difference(set(b)))
-
+print(selection(population))
+a = crossover(selection(population))
+print(crossover(selection(population)))
+print(chromosome_evaluation(assignment(hypermutation(crossover(selection(population)))[random.randint(0,p_size -1)])))
+'''
