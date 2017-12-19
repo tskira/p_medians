@@ -105,15 +105,16 @@ def selection(population):
     w = list()
     selected_parents = list()
     tournament = list()
-    while(len(selected_parents) <= p_size // 4):
+    while(len(selected_parents) <= int(0.9 * p_size)):
         w = [0 for x in range(len(target_population))]
         for i in range(len(target_population)):        
             w[i] = (1 / chromosome_evaluation(assignment(target_population[i])))
-        ranking = random.choices(target_population, weights = w, k = p_size // 10)
+        ranking = random.choices(target_population, weights = w, k = 3)
         for i in range(len(ranking)):
             bisect.insort(tournament, list((chromosome_evaluation(assignment(ranking[i])), ranking[i])))
-        selected_parents.append(tournament[0][1])
-        target_population.remove(tournament[0][1])
+        if(tournament[0][1] not in selected_parents):
+            selected_parents.append(tournament[0][1])
+            target_population.remove(tournament[0][1])
         tournament.clear()
         w.clear()
 
@@ -121,7 +122,7 @@ def selection(population):
 
 def crossover(next_population):
     next_generation = list()
-    while(len(next_generation) + len(next_population) <= p_size):
+    while(len(next_generation) <= p_size):
         parents = random.choices(next_population, k = 2)
         set_parent1 = set(parents[0])
         set_parent2 = set(parents[1])
@@ -148,16 +149,21 @@ def crossover(next_population):
                 new_e2.add(list(set_parent1)[count])
                 count += 1
         if (new_e1):
-            next_generation.append(tuple(new_e1))
+            if ((new_e1 not in next_generation) and new_e1 not in next_population):
+                next_generation.append(tuple(new_e1))
         if (new_e2):
-            next_generation.append(tuple(new_e2))
-    for i in range(len(next_generation)):
+            if((new_e2 not in next_generation) and (new_e2 not in next_population)):
+                next_generation.append(tuple(new_e2))
+    ''' for i in range(len(next_generation)):
         next_population.append(next_generation[i])
     return(next_population)
+    '''
+    return (next_generation)
+
 
 def hypermutation(population):
     target_population = list(population).copy()
-    hypermutation_members = random.choices(target_population, k = int(p_size * 0.1))
+    hypermutation_members = random.choices(target_population, k = int(p_size * 0.10))
     for i in hypermutation_members:
         best_current = list()
         best_current_evalueted = 0
@@ -170,21 +176,24 @@ def hypermutation(population):
                 if (chromosome_evaluation(assignment(apply_mutation)) > best_current_evalueted):
                     best_current = apply_mutation.copy()
                     best_current_evalueted = chromosome_evaluation(assignment(apply_mutation))
-        target_population.remove(tuple(i))
+        if(i in target_population):
+            target_population.remove(tuple(i))
         target_population.append(tuple(best_current))
     return(target_population)
 
-def cap_p_med_ga():
+def cap_p_med_ga(population_target):
     init_population(info[0], info[1])
     count = 0
+    population_generation = list(population_target).copy()
     while (count < 10):
-        for i in range(len(population)):
-            population_evaluation[i] = chromosome_evaluation(assignment(list(population)[i]))
+        for i in range(p_size):
+            population_evaluation[i] = chromosome_evaluation(assignment(list(population_generation)[i]))
+        print(population_generation)
         print(min(population_evaluation))
-        population = selection(population)
-        population = crossover(population)
-        population = hypermutation(population)
-        
+        population_generation = selection(population_generation)
+        population_generation = crossover(population_generation)
+        population_generation = hypermutation(population_generation)
+
 population = set()  
 info = (tuple(map(int, input().split())))
 nodes_distances = [[0 for x in range(info[0])] for y in range(info[0])] 
@@ -200,6 +209,8 @@ for i in range(info[0]):
     for j in range(info[0]):
         if(i != j):
             nodes_distances[i][j] = euclidean_distance((points[i][0]),(points[j][0]),(points[i][1]),(points[j][1]))
+
+cap_p_med_ga(population)
 
 '''
 init_population(info[0], info[1])
