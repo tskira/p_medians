@@ -111,7 +111,7 @@ def selection(population):
     best_fitness = min(evaluation_next_population)
     better = evaluation_next_population.index(best_fitness)
     selected_parents.append(list(population)[better])
-    while(len(selected_parents) < int(0.5 * p_size)):
+    while(len(selected_parents) < int(0.8 * p_size)):
         w = [0 for x in range(len(target_population))]
         for i in range(len(target_population)):        
             w[i] = (1 / chromosome_evaluation(assignment(target_population[i])))
@@ -207,14 +207,14 @@ def cap_p_med_ga(population_target):
     init_population(info[0], info[1])
     count = 0
     population_generation = list(population_target).copy()
-    while (count < 5):
+    while (count < 50):
         for i in range(p_size):
             population_evaluation[i] = chromosome_evaluation(assignment(list(population_generation)[i]))
         population_generation = selection(population_generation)
         population_generation = crossover(population_generation)
         population_generation = hypermutation(population_generation)
-        print(population_generation)
         print(min(population_evaluation))
+        count += 1
 
 population = set()  
 info = (tuple(map(int, input().split())))
