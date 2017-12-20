@@ -15,7 +15,21 @@ def euclidean_distance(x0,x1,y0,y1):
 
 def init_population(n, p):
     k = population_size(n,p)//math.ceil(n/p)
-   
+    new_chromosome = set()
+    for i in range(n//p):
+        for j in range(p):
+            new_chromosome.add((i * p + j) % n)
+        population.add(tuple(new_chromosome))
+        new_chromosome.clear()
+    count = 0
+    for i in range(n//p):
+        for j in range(p):
+            new_chromosome.add((count % n))
+            count += k
+            if (count >= n):
+                count = (count % n) + 1
+        population.add(tuple(new_chromosome))
+        new_chromosome.clear()
     while(len(population) < population_size(n,p)):
         fill_chromossome = set()
         while(len(fill_chromossome) < p):
@@ -97,7 +111,7 @@ def selection(population):
     best_fitness = min(evaluation_next_population)
     better = evaluation_next_population.index(best_fitness)
     selected_parents.append(list(population)[better])
-    while(len(selected_parents) < int(0.6 * p_size)):
+    while(len(selected_parents) < int(0.7 * p_size)):
         w = [0 for x in range(len(target_population))]
         for i in range(len(target_population)):        
             w[i] = (1 / chromosome_evaluation(assignment(target_population[i])))
@@ -163,7 +177,15 @@ def crossover(next_population):
 
 def hypermutation(population):
     target_population = list(population).copy()
-    hypermutation_members = random.choices(target_population, k = int(p_size * 0.10))
+    evaluation_next_population = [0 for x in range(len(population))]
+    for i in range(len(population)):
+        evaluation_next_population[i] = chromosome_evaluation(assignment(list(population)[i]))
+    best_fitness = min(evaluation_next_population)
+    better = evaluation_next_population.index(best_fitness)
+    hypermutation_members = random.choices(target_population, k = int(p_size * 0.1))
+    while(list(population)[better] in hypermutation_members):
+        hypermutation_members = random.choices(target_population, weights = evaluation_next_population ,k = int(p_size * 0.1))
+
     for i in hypermutation_members:
         best_current = i
         best_current_evalueted = 0
@@ -185,14 +207,13 @@ def cap_p_med_ga(population_target):
     init_population(info[0], info[1])
     count = 0
     population_generation = list(population_target).copy()
-    while (count < 10):
+    while (count < 5):
         for i in range(p_size):
             population_evaluation[i] = chromosome_evaluation(assignment(list(population_generation)[i]))
-        #print(population_generation)
-        print(min(population_evaluation))
         population_generation = selection(population_generation)
         population_generation = crossover(population_generation)
         population_generation = hypermutation(population_generation)
+        print(min(population_evaluation))
 
 population = set()  
 info = (tuple(map(int, input().split())))
